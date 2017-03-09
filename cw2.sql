@@ -1,6 +1,5 @@
 CREATE TABLE `lang`(
-    `code` CHAR(2) PRIMARY KEY NOT NULL,
-    `description` TEXT NOT NULL
+    `code` CHAR(2) PRIMARY KEY NOT NULL
 );
 CREATE TABLE `areas_lang`(
     `id` INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
@@ -27,8 +26,8 @@ CREATE TABLE `stations_lang`(
     `lang` CHAR(2) NOT NULL,
     `district` INT NOT NULL,
     `location` TEXT NOT NULL,
-    `latitude` DECIMAL NOT NULL,
-    `longitude` DECIMAL NOT NULL,
+    `latitude` DECIMAL(10, 8) NOT NULL,
+    `longitude` DECIMAL(11, 8) NOT NULL,
     `type` VARCHAR(30) NOT NULL,
     `address` TEXT NOT NULL,
     `provider` VARCHAR(30) NOT NULL,

@@ -47,7 +47,7 @@ class DatabaseConnection
 				$this->pdo_options
 			);
 		} catch (PDOException $e) {
-			die($e->getMessage());
+
 		}
 	}
 }

@@ -1,5 +1,5 @@
 <?php
-require 'DatabaseConnection.php';
+require __DIR__ . '/database/DatabaseConnection.php';
 
 /**
  * Class DataConverter
@@ -46,6 +46,10 @@ class DataConverter
 	 */
 	public function convertData()
 	{
+		if($this->checkDataExist()) {
+			return;
+		}
+
 		foreach ($this->urls as $url) {
 
 			try {
@@ -217,6 +221,27 @@ class DataConverter
 		$query->execute();
 
 		return $query->fetchAll(PDO::FETCH_OBJ);
+	}
+
+	/**
+	 * Check if data are existed in database
+	 *
+	 * @return bool
+	 */
+	private function checkDataExist()
+	{
+		$query = $this->pdo->prepare(
+			"SELECT *
+			  FROM lang;"
+		);
+
+		$query->execute();
+
+		if ($query->rowCount() > 0) {
+			return true;
+		}
+
+		return false;
 	}
 
 }
