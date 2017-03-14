@@ -1,7 +1,7 @@
 <?php
-require_once(ROOTPATH . '/core/response/RESTful.php');
-require_once(ROOTPATH . '/core/response/ResponseFormat.php');
-require_once(ROOTPATH . '/core/database/DatabaseConnection.php');
+require_once(realpath($_SERVER["DOCUMENT_ROOT"]) . '/core/response/RESTful.php');
+require_once(realpath($_SERVER["DOCUMENT_ROOT"]) . '/core/response/ResponseFormat.php');
+require_once(realpath($_SERVER["DOCUMENT_ROOT"]) . '/core/database/DatabaseConnection.php');
 
 
 /**

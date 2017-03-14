@@ -7,11 +7,11 @@
 		<!-- Brand and toggle get grouped for better mobile display -->
 		<div class="navbar-header">
 			<a href="javascript:void(0);" class="btn btn-sm pmd-btn-fab pmd-btn-flat pmd-ripple-effect btn-primary pull-left margin-r8 pmd-sidebar-toggle"><i class="material-icons">menu</i></a>
-			<a class="navbar-brand" href="javascript:void(0);">Brand</a>
+			<a class="navbar-brand" href="/">Electric Vehicle Charging Stations Finder</a>
 		</div>
 		<!-- Navbar Right icon -->
 		<div class="pmd-navbar-right-icon pull-right">
-			<a href="javascript:void(0);" class="btn btn-sm pmd-btn-fab pmd-btn-flat pmd-ripple-effect btn-primary"><i class="material-icons pmd-sm">search</i></a>
+			<button type="button" class="btn btn-primary pmd-ripple-effect">Total <span class="badge" id="amount"></span></button>
 			<a href="javascript:void(0);" class="btn btn-sm pmd-btn-fab pmd-btn-flat pmd-ripple-effect btn-primary topbar-toggle visible-xs-inline-block" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"><i class="material-icons pmd-sm">more_vert</i></a>
 			<a href="javascript:void(0);" class="btn btn-sm pmd-btn-fab pmd-btn-flat pmd-ripple-effect btn-primary pmd-sidebar-toggle-right"><i class="material-icons">more_horiz</i></a>
 		</div>
