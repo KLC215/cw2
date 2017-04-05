@@ -2,7 +2,7 @@
 require_once(realpath($_SERVER["DOCUMENT_ROOT"]) . '/core/response/RESTful.php');
 require_once(realpath($_SERVER["DOCUMENT_ROOT"]) . '/core/response/ResponseFormat.php');
 require_once(realpath($_SERVER["DOCUMENT_ROOT"]) . '/core/database/DatabaseConnection.php');
-
+require_once(realpath($_SERVER["DOCUMENT_ROOT"]) . '/core/helpers.php');
 
 /**
  * Class Station
@@ -25,10 +25,25 @@ class Station extends RESTful
 
 	public function getStationData()
 	{
-		if (!isset($_GET['no'])) {
+		if (!isset($_GET['no']) &&
+			!isset($_GET['district']) &&
+			!isset($_GET['type']) &&
+			!isset($_GET['provider']) &&
+			!isset($_GET['get'])
+		) {
 			$this->selectAllStations();
-		} else {
+		}
+		if (isset($_GET['no'])) {
 			$this->selectSpecificStation($_GET['no']);
+		}
+		if (isset($_GET['district'])) {
+			$this->selectStationsByDistrict($_GET['district']);
+		}
+		if(isset($_GET['type'])) {
+			$this->selectStationsByType($_GET['type']);
+		}
+		if(isset($_GET['provider'])) {
+			$this->selectStationsByProvider($_GET['provider']);
 		}
 	}
 
@@ -117,6 +132,148 @@ class Station extends RESTful
 		}
 	}
 
+	private function selectStationsByDistrict($district)
+	{
+		if (!$district) {
+			$this->showErrorResponse(
+				$this->getFormat(),
+				$this->responseMissingParam()
+			);
+			die();
+		}
+
+		$query = $this->pdo->prepare(
+			"SELECT
+			  s.no,
+			  sl.location,
+			  sl.latitude  AS lat,
+			  sl.longitude AS lng,
+			  sl.type,
+			  al.name      AS districtL,
+			  dl.name      AS districtS,
+			  sl.address,
+			  sl.provider,
+			  sl.parking_no,
+			  s.img
+			FROM stations s
+			  INNER JOIN stations_lang sl ON s.id = sl.station
+			  INNER JOIN districts_lang dl ON sl.district = dl.id
+			  INNER JOIN areas_lang al ON dl.area = al.id
+			  INNER JOIN lang l ON sl.lang = l.code
+			WHERE l.code = '{$this->lang}' AND sl.district = {$district}
+			ORDER BY s.no;"
+		);
+
+		$query->execute();
+
+		if ($query->rowCount() <= 0) {
+			$this->showErrorResponse(
+				$this->getFormat(),
+				$this->responseNumberNotRecognized()
+			);
+			die();
+		}
+
+		if ($this->format == JSONResponse::JSON_FORMAT) {
+			JSONResponse::jsonStations($query->fetchAll(PDO::FETCH_OBJ));
+		}
+
+	}
+
+	public function selectStationsByType($type)
+	{
+		if (!$type) {
+			$this->showErrorResponse(
+				$this->getFormat(),
+				$this->responseMissingParam()
+			);
+			die();
+		}
+
+		$query = $this->pdo->prepare(
+			"SELECT
+			  s.no,
+			  sl.location,
+			  sl.latitude  AS lat,
+			  sl.longitude AS lng,
+			  sl.type,
+			  al.name      AS districtL,
+			  dl.name      AS districtS,
+			  sl.address,
+			  sl.provider,
+			  sl.parking_no,
+			  s.img
+			FROM stations s
+			  INNER JOIN stations_lang sl ON s.id = sl.station
+			  INNER JOIN districts_lang dl ON sl.district = dl.id
+			  INNER JOIN areas_lang al ON dl.area = al.id
+			  INNER JOIN lang l ON sl.lang = l.code
+			WHERE l.code = '{$this->lang}' AND sl.type = '{$type}'
+			ORDER BY s.no;"
+		);
+
+		$query->execute();
+
+		if ($query->rowCount() <= 0) {
+			$this->showErrorResponse(
+				$this->getFormat(),
+				$this->responseNumberNotRecognized()
+			);
+			die();
+		}
+
+		if ($this->format == JSONResponse::JSON_FORMAT) {
+			JSONResponse::jsonStations($query->fetchAll(PDO::FETCH_OBJ));
+		}
+	}
+
+	public function selectStationsByProvider($provider)
+	{
+		if (!$provider) {
+			$this->showErrorResponse(
+				$this->getFormat(),
+				$this->responseMissingParam()
+			);
+			die();
+		}
+
+		$query = $this->pdo->prepare(
+			"SELECT
+			  s.no,
+			  sl.location,
+			  sl.latitude  AS lat,
+			  sl.longitude AS lng,
+			  sl.type,
+			  al.name      AS districtL,
+			  dl.name      AS districtS,
+			  sl.address,
+			  sl.provider,
+			  sl.parking_no,
+			  s.img
+			FROM stations s
+			  INNER JOIN stations_lang sl ON s.id = sl.station
+			  INNER JOIN districts_lang dl ON sl.district = dl.id
+			  INNER JOIN areas_lang al ON dl.area = al.id
+			  INNER JOIN lang l ON sl.lang = l.code
+			WHERE l.code = '{$this->lang}' AND sl.provider = '{$provider}'
+			ORDER BY s.no;"
+		);
+
+		$query->execute();
+
+		if ($query->rowCount() <= 0) {
+			$this->showErrorResponse(
+				$this->getFormat(),
+				$this->responseNumberNotRecognized()
+			);
+			die();
+		}
+
+		if ($this->format == JSONResponse::JSON_FORMAT) {
+			JSONResponse::jsonStations($query->fetchAll(PDO::FETCH_OBJ));
+		}
+	}
+
 	public function setPdo($pdo)
 	{
 		$this->pdo = $pdo;
@@ -124,18 +281,12 @@ class Station extends RESTful
 
 	public function setFormat()
 	{
-		$this->format =
-			isset($_GET['format']) && $_GET['format'] != ''
-				? strtolower($_GET['format'])
-				: '';
+		$this->format = correctFormat();
 	}
 
 	public function setLang()
 	{
-		$this->lang =
-			isset($_GET['lang']) && $_GET['lang'] != ''
-				? strtoupper($_GET['lang'])
-				: '';
+		$this->lang = correctLang();
 	}
 
 	/**

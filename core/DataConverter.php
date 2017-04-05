@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . '/database/DatabaseConnection.php';
+require __DIR__ . '/helpers.php';
 
 /**
  * Class DataConverter
@@ -46,7 +47,7 @@ class DataConverter
 	 */
 	public function convertData()
 	{
-		if($this->checkDataExist()) {
+		if ($this->hasData()) {
 			return;
 		}
 
@@ -82,7 +83,7 @@ class DataConverter
 	private function insert($table, $params)
 	{
 		$sql = sprintf(
-			'insert into %s (%s) values (%s)',
+			'INSERT INTO %s (%s) VALUES (%s)',
 			$table,
 			implode(', ', array_keys($params)),
 			':' . implode(', :', array_keys($params))
@@ -186,7 +187,6 @@ class DataConverter
 			$this->tables[$row->Tables_in_cw2] = $row->Tables_in_cw2;
 		}
 
-		//var_dump($this->tables);
 	}
 
 	/**
@@ -228,11 +228,12 @@ class DataConverter
 	 *
 	 * @return bool
 	 */
-	private function checkDataExist()
+	private function hasData()
 	{
+		// Compare the size with database
 		$query = $this->pdo->prepare(
 			"SELECT *
-			  FROM lang;"
+			  FROM stations;"
 		);
 
 		$query->execute();
@@ -242,6 +243,61 @@ class DataConverter
 		}
 
 		return false;
+	}
+
+
+//	/**
+//	 * Check if source has updated data
+//	 *
+//	 * @param $stationCount
+//	 *
+//	 * @return bool
+//	 */
+//	private function hasUpdateDataFromSource($stationCount)
+//	{
+//		// Grub all stations from url
+//		$xml = simplexml_load_file($this->urls[0]);
+//
+//		$sourceCount = sizeof($xml->stationList->station);
+//
+//		// Empty all tables
+//		if ($sourceCount > $stationCount) {
+//
+//			$sortedTables = $this->truncateSort();
+//
+//			$this->pdo->query("SET FOREIGN_KEY_CHECKS = 0;");
+//
+//			foreach ($sortedTables as $table) {
+//				$this->pdo->query(
+//					"TRUNCATE TABLE $table;"
+//				);
+//
+//			}
+//
+//			$this->pdo->query("SET FOREIGN_KEY_CHECKS = 1;");
+//
+//			return false;
+//		}
+//
+//		return true;
+//	}
+
+	/**
+	 * Sort tables array for truncating tables
+	 *
+	 * @return array
+	 */
+	private function truncateSort()
+	{
+		$sortedTables = [];
+
+		$sortedTables['stations_lang'] = $this->tables['stations_lang'];
+		$sortedTables['stations'] = $this->tables['stations'];
+		$sortedTables['districts_lang'] = $this->tables['districts_lang'];
+		$sortedTables['areas_lang'] = $this->tables['areas_lang'];
+		$sortedTables['lang'] = $this->tables['lang'];
+
+		return $sortedTables;
 	}
 
 }

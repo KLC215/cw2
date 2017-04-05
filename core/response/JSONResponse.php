@@ -6,7 +6,7 @@
 class JSONResponse
 {
 	/**
-	 *	JSON data format
+	 *    JSON data format
 	 */
 	const JSON_FORMAT = 'json';
 
@@ -36,6 +36,20 @@ class JSONResponse
 		echo json_encode($stationList);
 	}
 
+	public static function jsonDistrict($districts = [])
+	{
+		JSONResponse::setJSONHeader();
+
+		echo json_encode($districts);
+	}
+
+	public static function jsonStationType($types = [])
+	{
+		JSONResponse::setJSONHeader();
+
+		echo json_encode($types);
+	}
+
 	/**
 	 * Convert error message to JSON format
 	 *
@@ -46,7 +60,7 @@ class JSONResponse
 		JSONResponse::setJSONHeader();
 
 		$stationList = [
-			'stationList' => $msg
+			'stationList' => $msg,
 		];
 
 		echo json_encode($stationList);

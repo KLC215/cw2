@@ -8,16 +8,18 @@
 		<title>Electric Vehicle Charging Stations Finder</title>
 
 		<!-- Bootstrap css-->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
 
-		<!--Google Icon Font-->
-		<link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-		<!-- Propeller css -->
-		<link href="../assets/css/propeller.min.css" rel="stylesheet">
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+			  rel="stylesheet"
+			  integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+			  crossorigin="anonymous">
 
 		<!-- SweetAlert2 css-->
 		<link rel="stylesheet" href="../assets/css/sweetalert2.min.css">
+
+		<!-- Datatables -->
+		<link rel="stylesheet" href="../assets/css/datatables.css">
 
 		<!-- Custom CSS	-->
 		<link rel="stylesheet" href="../assets/css/styles.css">

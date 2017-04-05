@@ -1,52 +1,45 @@
-<div class="container">
-
+<!-- Content -->
+<div class="container-fluid" id="content">
+	<div id="map"></div>
 </div>
 
-<div id="map"></div>
+<?php require_once 'search.modal.php' ?>
+<!---->
+<!--<div class="container-fluid">-->
+<!--	-->
+<!--</div>-->
 
 
-<script>
-	function initMap() {
+<!--	<div class="row">-->
+<!---->
+<!--		<div class="col-xs-6 col-md-4">-->
+<!--			<form class="form-horizontal">-->
+<!--				<fieldset>-->
+<!--					<legend>Range search</legend>-->
+<!--					<div class="col-lg-10">-->
+<!--						<div class="form-group">-->
+<!--							<label for="area" class="col-lg-2 control-label">Area</label>-->
+<!--							<select class="form-control" id="area" name="area">-->
+<!--							</select>-->
+<!--						</div>-->
+<!--						<div class="form-group">-->
+<!--							<label for="district" class="col-lg-2 control-label">District</label>-->
+<!--							<select class="form-control" id="district" name="district" disabled>-->
+<!--							</select>-->
+<!--						</div>-->
+<!--						<div class="form-group">-->
+<!--							<button class="btn btn-success pull-right" id="rangeSearch">Search</button>-->
+<!--						</div>-->
+<!--					</div>-->
+<!--				</fieldset>-->
+<!--			</form>-->
+<!--		</div>-->
+<!---->
+<!--		<div class="col-xs-12 col-sm-6 col-md-8">-->
+<!--			-->
+<!--		</div>-->
+<!---->
+<!--	</div>-->
 
-		axios.get(API_URL, { params: { lang: 'en', format: 'json' } })
-			 .then(function (response) {
 
-				 let stationList = response.data.stationList;
 
-				 if (stationList.error) {
-					 swal(
-						 stationList.error.msg,
-						 'Error code: <b>' + stationList.error.code + '</b>',
-						 'error'
-					 );
-					 return;
-				 }
-
-				 let stations = stationList.station;
-
-				 // Create a map object and specify the DOM element for display.
-				 let map = new google.maps.Map(document.getElementById('map'), {
-					 center: { lat: 22.342200, lng: 114.106777 },
-					 zoom: 12
-				 });
-
-				 // Add markers on the map
-				 stations.forEach(function (item, index) {
-					 addMarker(item, map);
-				 });
-
-				 $('#amount').text(stations.length);
-
-			 });
-
-	}
-
-	function addMarker(location, map) {
-		let marker = new google.maps.Marker({
-			position: new google.maps.LatLng(location.lat, location.lng),
-			draggable: false,
-			map: map
-		});
-
-	}
-</script>
