@@ -2,3 +2,10 @@
 	height: 800px;
 	width: 100%;
 }
+
+#my-panel {
+	height: 100%;
+	float: right;
+	width: 100px;
+	overflow: auto;
+}

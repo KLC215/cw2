@@ -1,0 +1,22 @@
+<?php
+return [
+	'title'          => '充電喇 !',
+	'search'         => '搜尋',
+	'searchStations' => '搜尋充電站',
+	'info'           => '資料',
+	'moreInfo'       => '詳細資料',
+	'image'          => '圖片',
+	'location'       => '地點',
+	'address'        => '地址',
+	'area'           => '地區',
+	'district'       => '市區',
+	'type'           => '充電站類型',
+	'provider'       => '供應商',
+	'searchBy'       => '搜尋',
+	'filter'         => '篩選',
+	'areaDistrict'   => '地區 及 市區',
+	'chooseArea'     => '選擇 地區',
+	'chooseDistrict' => '選擇 市區',
+	'resetMap'       => '重設地圖',
+	'remember'       => '記住這地點',
+];

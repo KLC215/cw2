@@ -4,6 +4,26 @@ class Language extends RESTful
 {
 	public static $languages = [];
 
+	public static function getLocale()
+	{
+		if (isset($_GET['en'])) {
+			self::getEN();
+		} else if(isset($_GET['tc'])) {
+			self::getTC();
+		}
+	}
+
+	public static function getTC()
+	{
+		JSONResponse::jsonDistrict(require_once(realpath($_SERVER["DOCUMENT_ROOT"]) . '/app/langs/TC.php'));
+	}
+
+	public static function getEN()
+	{
+		JSONResponse::jsonDistrict(require_once(realpath($_SERVER["DOCUMENT_ROOT"]) . '/app/langs/EN.php'));
+	}
+
+
 	public static function getLanguages()
 	{
 		$db = new DatabaseConnection();

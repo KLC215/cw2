@@ -18,8 +18,8 @@
 		<!-- SweetAlert2 css-->
 		<link rel="stylesheet" href="../assets/css/sweetalert2.min.css">
 
-		<!-- Datatables -->
-		<link rel="stylesheet" href="../assets/css/datatables.css">
+		<!-- Lightbox CSS -->
+		<link rel="stylesheet" href="../assets/css/lightbox.min.css">
 
 		<!-- Custom CSS	-->
 		<link rel="stylesheet" href="../assets/css/styles.css">

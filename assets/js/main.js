@@ -40,7 +40,7 @@ District.prototype.getName = function () {
 	return this.name;
 };
 
-
+let defaultLocale = 0;
 let districts = [];
 let areas = [];
 let types = [];
@@ -50,43 +50,99 @@ let areaData = {};
 let districtData = {};
 
 function requestDistricts() {
-	$.get(ALL_DISTRICTS_URL_JSON_EN, function (response) {
+	areas = [];
+	districts = [];
+
+	$.get(localeCode === 'EN' ? ALL_DISTRICTS_URL_JSON_EN : ALL_DISTRICTS_URL_JSON_TC, function (response) {
 
 		areaData = response.areas;
 		districtData = response.districts;
 
+		let id = 0;
+		let areaId = 0;
+
+		if (localeCode === 'EN') {
+			id = 1;
+			areaId = 1;
+		} else {
+			id = 1;
+			areaId = 5;
+		}
+
 		// Create a area instance and store into array
-		for (let id = 1; id <= Object.keys(areaData).length; id++) {
+		for (id; id <= Object.keys(areaData).length; id++) {
 			areas.push(new Area(id, Object.values(areaData)[id - 1]));
 		}
 
-		// Create a district instance and store into array
-		for (let areaId = 1; areaId <= Object.keys(districtData).length; areaId++) {
+		if (localeCode === 'EN') {
+			for (areaId; areaId <= Object.keys(districtData).length; areaId++) {
 
-			let districtKeys = Object.keys(districtData[areaId]);
-			let districtValues = _.values(districtData[areaId]);
+				let districtKeys = Object.keys(districtData[areaId]);
 
-			for (let j = 0; j < districtValues.length; j++) {
+				let districtValues = _.values(districtData[areaId]);
 
-				let id = parseInt(districtKeys[j]);
+				for (let j = 0; j < districtValues.length; j++) {
 
-				districts.push(new District(id, areaId, districtValues[j]));
+					let id = parseInt(districtKeys[j]);
+
+					districts.push(new District(id, areaId, districtValues[j]));
+				}
+			}
+		} else {
+			let length = areaId + Object.keys(districtData).length - 1;
+
+			for (areaId; areaId <= length; areaId++) {
+
+				let districtKeys = Object.keys(districtData[areaId]);
+
+				let districtValues = _.values(districtData[areaId]);
+
+				for (let j = 0; j < districtValues.length; j++) {
+
+					let id = parseInt(districtKeys[j]);
+
+					districts.push(new District(id, areaId, districtValues[j]));
+				}
 			}
 		}
+
+		//// Create a district instance and store into array
+		//for (areaId; areaId <= Object.keys(districtData).length; areaId++) {
+		//
+		//	let districtKeys = Object.keys(districtData[areaId]);
+		//
+		//	let districtValues = _.values(districtData[areaId]);
+		//
+		//	for (let j = 0; j < districtValues.length; j++) {
+		//
+		//		let id = parseInt(districtKeys[j]);
+		//
+		//		districts.push(new District(id, areaId, districtValues[j]));
+		//	}
+		//}
 
 		let options = [];
 
 		options.push(
 			$('<option/>').attr("disabled", true)
 						  .attr("selected", true)
-						  .html("Choose area")
+						  .html(localeCode === 'EN' ? "Choose area" : "選擇 地區")
 		);
 
-		for (let i = 0; i < areas.length; i++) {
-			options.push(
-				$('<option/>').attr("value", areas[i].id)
-							  .html(areas[i].name)
-			);
+		if (localeCode === 'EN') {
+			for (let i = 0; i < areas.length; i++) {
+				options.push(
+					$('<option/>').attr("value", areas[i].id)
+								  .html(areas[i].name)
+				);
+			}
+		} else {
+			for (let i = 0; i < areas.length; i++) {
+				options.push(
+					$('<option/>').attr("value", areas[i].id + 4)
+								  .html(areas[i].name)
+				);
+			}
 		}
 
 		$('#and').find('#area').html(options);
@@ -101,7 +157,7 @@ function requestStationType() {
 		options.push(
 			$('<option/>').attr("disabled", true)
 						  .attr("selected", true)
-						  .html("Choose type")
+						  .html(localeCode === 'EN' ? "Choose type" : "選擇 充電站類型")
 		);
 
 		types.forEach((item, index) => {
@@ -124,7 +180,7 @@ function requestProvider() {
 		options.push(
 			$('<option/>').attr("disabled", true)
 						  .attr("selected", true)
-						  .html("Choose provider")
+						  .html(localeCode === 'EN' ? "Choose provider" : "選擇 供應商")
 		);
 
 		providers.forEach((item, index) => {
@@ -137,9 +193,39 @@ function requestProvider() {
 		$('#provider').html(options);
 	});
 }
-
+function translate(data) {
+	$("[tkey]").each(function (index) {
+		let strTr = data[$(this).attr('tkey')];
+		$(this).html(strTr);
+	});
+}
 
 $(function () {
+
+	$('#btnLocale').click(function () {
+
+		if (localeCode === 'EN') {
+			localeCode = 'TC';
+			$.get(LOCALE_TC_URL, function (response) {
+				translate(response);
+				translateMarkers();
+
+				requestDistricts();
+				requestStationType();
+				requestProvider();
+			});
+		} else {
+			localeCode = 'EN';
+			$.get(LOCALE_EN_URL, function (response) {
+				translate(response);
+				translateMarkers();
+
+				requestDistricts();
+				requestStationType();
+				requestProvider();
+			});
+		}
+	});
 
 	$('#search-modal').on('hidden.bs.modal', function () {
 		$('#selectSearch').val($("#selectSearch option:first").val());
@@ -151,6 +237,10 @@ $(function () {
 		$('#' + $(this).val()).show();
 	});
 
+	$('#btnHistory').click(function () {
+		initHistoryList();
+	});
+
 	requestDistricts();
 	requestStationType();
 	requestProvider();
@@ -160,16 +250,15 @@ $(function () {
 // Search selection chained
 $("#and").find("#area").change(function () {
 
-	//console.log(districts);
-
 	let options = [];
 
 	let areaId = parseInt($('#and').find('#area').val());
 
+
 	options.push(
 		$('<option/>').attr("disabled", true)
 					  .attr("selected", true)
-					  .html("Choose district")
+					  .html(localeCode === 'EN' ? "Choose district" : "請選擇 市區")
 	);
 
 	for (let i = 0; i < districts.length; i++) {
@@ -196,14 +285,14 @@ $('#searchAND').click(function () {
 	// Add has-error class and display error message when user doesn't choose area.
 	if ($('#area').val() === null) {
 		$('#selectArea').addClass('has-error');
-		$('#errorArea').html("Please choose an area !");
+		$('#errorArea').html(localeCode === 'EN' ? "Please choose an area !" : "請選擇 地區！");
 		return;
 	}
 
 	// Add has-error class and display error message when user doesn't choose district.
 	if ($('#district').val() === null) {
 		$('#selectDistrict').addClass('has-error');
-		$('#errorDistrict').html("Please choose a district !");
+		$('#errorDistrict').html(localeCode === 'EN' ? "Please choose a district !" : "請選擇 市區！");
 		return;
 	}
 
@@ -212,11 +301,10 @@ $('#searchAND').click(function () {
 		params: {
 			district: $('#district').val(),
 			format: 'json',
-			lang: 'en',
+			lang: localeCode,
 		}
 	})
 		 .then(response => {
-			 console.log(response);
 
 			 // Get stations array from response data
 			 let stations = response.data.stationList.station;
@@ -230,6 +318,8 @@ $('#searchAND').click(function () {
 			 });
 
 			 $('#search-modal').modal('toggle');
+
+			 notyCompletedSearch();
 
 		 });
 });
@@ -242,7 +332,7 @@ $('#searchType').click(function () {
 	// Add has-error class and display error message when user doesn't choose area.
 	if ($('#type').val() === null) {
 		$('#selectType').addClass('has-error');
-		$('#errorType').html("Please choose a station type !");
+		$('#errorType').html(localeCode === 'EN' ? "Please choose a station type !" : "請選擇 充電站類型！");
 		return;
 	}
 
@@ -255,7 +345,6 @@ $('#searchType').click(function () {
 		}
 	})
 		 .then(response => {
-			 console.log(response);
 
 			 // Get stations array from response data
 			 let stations = response.data.stationList.station;
@@ -270,6 +359,7 @@ $('#searchType').click(function () {
 
 			 $('#search-modal').modal('toggle');
 
+			 notyCompletedSearch();
 		 });
 });
 $('#searchProvider').click(function () {
@@ -281,7 +371,7 @@ $('#searchProvider').click(function () {
 	// Add has-error class and display error message when user doesn't choose area.
 	if ($('#provider').val() === null) {
 		$('#selectProvider').addClass('has-error');
-		$('#errorProvider').html("Please choose a station provider !");
+		$('#errorProvider').html(localeCode === 'EN' ? "Please choose a station provider !" : "請選擇 供應商！");
 		return;
 	}
 
@@ -294,7 +384,6 @@ $('#searchProvider').click(function () {
 		}
 	})
 		 .then(response => {
-			 console.log(response);
 
 			 // Get stations array from response data
 			 let stations = response.data.stationList.station;
@@ -309,6 +398,37 @@ $('#searchProvider').click(function () {
 
 			 $('#search-modal').modal('toggle');
 
+			 notyCompletedSearch();
+
 		 });
 });
 
+function notyCompletedSearch() {
+	noty({
+		text: localeCode === 'EN' ? 'Successfully search !' : '搜尋成功 !',
+		layout: 'topCenter',
+		type: 'success',
+		timeout: 3000
+	});
+	$('.childSearchForm').hide();
+}
+
+function initHistoryList() {
+	let locations = localStorage.getItem("location");
+
+	if(locations.length) {
+		for (let i = 0; i < locations.length; i++) {
+			if(localeCode === 'EN') {
+				$('#historyList').append(
+					$('li').attr('id', enStations[locations[i]].no)
+						   .html('No: ' + enStations[locations[i]].no + '<br>' + enStations[locations[i]].location)
+				);
+			} else {
+				$('#historyList').append(
+					$('li').attr('id', tcStations[locations[i]].no)
+						   .html('No: ' + tcStations[locations[i]].no + '<br>' + tcStations[locations[i]].location)
+				);
+			}
+		}
+	}
+}

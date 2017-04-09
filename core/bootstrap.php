@@ -14,6 +14,7 @@ $dataConverter->convertData();
 
 // Get language and store into variable in Language Class
 Language::getLanguages();
+Language::getLocale();
 
 // Get station data and show to user
 $station = new Station();

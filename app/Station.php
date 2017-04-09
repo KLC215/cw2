@@ -29,7 +29,9 @@ class Station extends RESTful
 			!isset($_GET['district']) &&
 			!isset($_GET['type']) &&
 			!isset($_GET['provider']) &&
-			!isset($_GET['get'])
+			!isset($_GET['get']) &&
+			!isset($_GET['en']) &&
+			!isset($_GET['tc'])
 		) {
 			$this->selectAllStations();
 		}
@@ -39,10 +41,10 @@ class Station extends RESTful
 		if (isset($_GET['district'])) {
 			$this->selectStationsByDistrict($_GET['district']);
 		}
-		if(isset($_GET['type'])) {
+		if (isset($_GET['type'])) {
 			$this->selectStationsByType($_GET['type']);
 		}
-		if(isset($_GET['provider'])) {
+		if (isset($_GET['provider'])) {
 			$this->selectStationsByProvider($_GET['provider']);
 		}
 	}
