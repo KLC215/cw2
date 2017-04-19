@@ -1,8 +1,42 @@
-<!-- Google Map Javascript API -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCWJm93-OKx4ibxo74PEDEY0JfNuOX4IXo&callback=initMap"
+<!--<!-- Google Map Javascript API -->-->
+<script id="google-maps-script" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCWJm93-OKx4ibxo74PEDEY0JfNuOX4IXo&callback=initMap&language=en"
 		async defer></script>
 <!-- Jquery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+<script>
+	let loadedScript = false;
+	let map = null;
+	window.loadScript = function (lang) {
+
+
+		let script = document.createElement('script');
+		script.type = 'text/javascript';
+		//script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&' +
+		//	'callback=initialize';
+		script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCWJm93-OKx4ibxo74PEDEY0JfNuOX4IXo&callback=initMap"; //
+		script.src += '&language=' + lang;
+		//script.src += '&callback=' + callback;
+
+		script.setAttribute('async', '');
+		script.setAttribute('defer', '');
+		script.id = "google-maps-script";
+
+		let bodyFirstChild = document.body.firstChild;
+		bodyFirstChild.parentNode.insertBefore(script, bodyFirstChild);
+		loadedScript = true;
+		//document.body.appendChild(script);
+	};
+
+	window.removeOldScript = function (lang) {
+		if(google && google !== undefined) {
+			delete google.maps;
+		}
+		$('#google-maps-script').remove();
+
+		loadScript(lang);
+	}
+</script>
 
 <!-- Bootstrap-->
 <script src="../assets/js/bootstrap.js"></script>
@@ -19,14 +53,16 @@
 <!-- Noty -->
 <script src="../assets/js/jquery.noty.packaged.min.js"></script>
 
-<script src="../assets/js/scotchPanels.min.js"></script>
+<!--<script src="../assets/js/scotchPanels.min.js"></script>-->
+
+<script src="../assets/js/jquery.slidereveal.js"></script>
 
 <script>
 
 	let localeCode = 'EN';
 	let enStations = [];
 	let tcStations = [];
-	let map = null;
+
 	let markers = [];
 	let activeWindow = null;
 	let myLocation = {};
@@ -42,85 +78,78 @@
 		directionsService = new google.maps.DirectionsService;
 		directionsDisplay = new google.maps.DirectionsRenderer;
 
-		axios.get(API_URL, { params: { lang: 'en', format: 'json' } })
-			 .then(function (response) {
+		// Create a map object and specify the DOM element for display.
+		map = new google.maps.Map(document.getElementById('map'), {
+			center: { lat: 22.342200, lng: 114.106777 },
+			zoom: 12
+		});
 
-				 let stationList = response.data.stationList;
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(function (position) {
+				myLocation = {
+					lat: position.coords.latitude,
+					lng: position.coords.longitude
+				};
 
-				 if (stationList.error) {
-					 swal(
-						 stationList.error.msg,
-						 'Error code: <b>' + stationList.error.code + '</b>',
-						 'error'
-					 );
-					 return;
-				 }
+				addMyMarker(myLocation, map);
+				map.setCenter(myLocation);
 
-				 enStations = stationList.station;
+			}, function () {
+				handleLocationError(true);
+			});
+		} else {
+			// Browser doesn't support Geolocation
+			handleLocationError(false);
+		}
 
-				 // Create a map object and specify the DOM element for display.
-				 map = new google.maps.Map(document.getElementById('map'), {
-					 center: { lat: 22.342200, lng: 114.106777 },
-					 zoom: 12
-				 });
+		if (enStations.length <= 0) {
+			axios.get(API_URL, { params: { lang: 'en', format: 'json' } })
+				 .then(function (response) {
 
-				 // Add markers on the map
-				 enStations.forEach(function (item, index) {
-					 addMarker(item, map, index);
-				 });
+					 let stationList = response.data.stationList;
 
-				 if (navigator.geolocation) {
-					 navigator.geolocation.getCurrentPosition(function (position) {
-						 myLocation = {
-							 lat: position.coords.latitude,
-							 lng: position.coords.longitude
-						 };
+					 if (stationList.error) {
+						 swal(
+							 stationList.error.msg,
+							 'Error code: <b>' + stationList.error.code + '</b>',
+							 'error'
+						 );
+						 return;
+					 }
 
-						 addMyMarker(myLocation, map);
-						 map.setCenter(myLocation);
+					 enStations = stationList.station;
 
-					 }, function () {
-						 handleLocationError(true);
+					 // Add markers on the map
+					 enStations.forEach(function (item, index) {
+						 addMarker(item, map, index);
 					 });
-				 } else {
-					 // Browser doesn't support Geolocation
-					 handleLocationError(false);
-				 }
 
+				 });
+		}
 
-			 });
+		if (tcStations.length <= 0) {
+			axios.get(API_URL, { params: { lang: 'tc', format: 'json' } })
+				 .then(function (response) {
 
-		axios.get(API_URL, { params: { lang: 'tc', format: 'json' } })
-			 .then(function (response) {
+					 tcStations = response.data.stationList.station;
 
-				 tcStations = response.data.stationList.station;
+				 });
+		}
 
-			 });
 	}
 
 	function translateMarkers() {
+
 		if (localeCode === 'EN') {
+
 			deleteMarkers();
-			enStations.forEach(function (item, index) {
-				addMarker(item, map);
-			});
-			noty({
-				text: 'Changed language to English !',
-				layout: 'topCenter',
-				type: 'success',
-				timeout: 3000
-			});
+			setTimeout(addENMarkers, 1000);
+
 		} else {
+
 			deleteMarkers();
-			tcStations.forEach(function (item, index) {
-				addMarker(item, map);
-			});
-			noty({
-				text: '已轉換語言至中文 !',
-				layout: 'topCenter',
-				type: 'success',
-				timeout: 3000
-			});
+			setTimeout(addTCMarkers, 1000);
+
 		}
 	}
 
@@ -172,7 +201,7 @@
 		});
 
 		let myInfoContent = '<div class="well">' +
-			'<span style="color: red">I am here!</span>' +
+			'<span style="color: red"> '+ localeCode === 'EN' ? 'I am here!' : '我在此!' + '</span>' +
 			'</div>';
 
 		let myInfoWindow = new google.maps.InfoWindow({
@@ -214,6 +243,30 @@
 	function deleteMarkers() {
 		clearMarkers();
 		markers = [];
+	}
+
+	function addENMarkers() {
+		enStations.forEach(function (item, index) {
+			addMarker(item, map);
+		});
+		noty({
+			text: 'Changed language to English !',
+			layout: 'topCenter',
+			type: 'success',
+			timeout: 3000
+		});
+	}
+
+	function addTCMarkers() {
+		tcStations.forEach(function (item, index) {
+			addMarker(item, map);
+		});
+		noty({
+			text: '已轉換語言至中文 !',
+			layout: 'topCenter',
+			type: 'success',
+			timeout: 3000
+		});
 	}
 
 	function checkImage(img) {
@@ -270,17 +323,14 @@
 
 				 addMarker(response.data.stationList.station[0]);
 
-				 sidePanel = $('#my-panel').scotchPanel({
-					 containerSelector: 'body', // As a jQuery Selector
-					 direction: 'left', // Make it toggle in from the left
-					 duration: 300, // Speed in ms how fast you want it to be
-					 transition: 'ease', // CSS3 transition type: linear, ease, ease-in, ease-out, ease-in-out, cubic-bezier(P1x,P1y,P2x,P2y)
-					 clickSelector: '.toggle-panel', // Enables toggling when clicking elements of this class
-					 distanceX: '20%', // Size fo the toggle
-					 enableEscapeKey: true // Clicking Esc will close the panel
+				 sidePanel = $("#my-panel").slideReveal({
+					 //trigger: $("#trigger"),
+					 autoEscape: true,
+					 width: 500,
+					 speed: 700
 				 });
 
-				 sidePanel.open();
+				 sidePanel.slideReveal("show");
 
 				 directionsService.route(request, function (response, status) {
 					 if (status === google.maps.DirectionsStatus.OK) {
@@ -321,7 +371,12 @@
 
 		preRememberNo = 0;
 
-		sidePanel.toggle();
+		if(sidePanel) {
+			sidePanel.slideReveal("hide");
+			sidePanel = null;
+		}
+
+		$('#my-panel').empty();
 
 		directionsDisplay.setMap(null);
 		$('#search-modal').appendTo("body");
@@ -355,13 +410,14 @@
 
 	function togglePanel() {
 		$('#btnTogglePanel').click(function () {
-			sidePanel.toggle();
+			sidePanel.slideReveal("toggle");
 
 			$('#search-modal').appendTo("body");
 
 			return false;
 		});
 	}
+
 
 </script>
 

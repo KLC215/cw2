@@ -202,31 +202,6 @@ function translate(data) {
 
 $(function () {
 
-	$('#btnLocale').click(function () {
-
-		if (localeCode === 'EN') {
-			localeCode = 'TC';
-			$.get(LOCALE_TC_URL, function (response) {
-				translate(response);
-				translateMarkers();
-
-				requestDistricts();
-				requestStationType();
-				requestProvider();
-			});
-		} else {
-			localeCode = 'EN';
-			$.get(LOCALE_EN_URL, function (response) {
-				translate(response);
-				translateMarkers();
-
-				requestDistricts();
-				requestStationType();
-				requestProvider();
-			});
-		}
-	});
-
 	$('#search-modal').on('hidden.bs.modal', function () {
 		$('#selectSearch').val($("#selectSearch option:first").val());
 		$('.childSearchForm').hide();
@@ -319,6 +294,8 @@ $('#searchAND').click(function () {
 
 			 $('#search-modal').modal('toggle');
 
+			 $('#btnResetMap').attr('disabled', false);
+
 			 notyCompletedSearch();
 
 		 });
@@ -358,7 +335,7 @@ $('#searchType').click(function () {
 			 });
 
 			 $('#search-modal').modal('toggle');
-
+			 $('#btnResetMap').attr('disabled', false);
 			 notyCompletedSearch();
 		 });
 });
@@ -397,7 +374,7 @@ $('#searchProvider').click(function () {
 			 });
 
 			 $('#search-modal').modal('toggle');
-
+			 $('#btnResetMap').attr('disabled', false);
 			 notyCompletedSearch();
 
 		 });
@@ -416,9 +393,9 @@ function notyCompletedSearch() {
 function initHistoryList() {
 	let locations = localStorage.getItem("location");
 
-	if(locations.length) {
+	if (locations.length) {
 		for (let i = 0; i < locations.length; i++) {
-			if(localeCode === 'EN') {
+			if (localeCode === 'EN') {
 				$('#historyList').append(
 					$('li').attr('id', enStations[locations[i]].no)
 						   .html('No: ' + enStations[locations[i]].no + '<br>' + enStations[locations[i]].location)
@@ -430,5 +407,80 @@ function initHistoryList() {
 				);
 			}
 		}
+	}
+}
+
+$('#btnLocale').click(function () {
+
+
+
+	//let oldScript = document.getElementById("google-maps-script");
+	//oldScript.parentNode.removeChild(oldScript);
+
+	//delete google.maps;
+
+	//delete google.maps;
+
+	if(localeCode === 'EN') {
+		removeOldScript('zh-TW');
+		setTimeout(changeScriptAndLocale(), 10000);
+	} else {
+		removeOldScript('en');
+		setTimeout(changeScriptAndLocale(), 10000);
+	}
+
+
+});
+
+function changeScriptAndLocale() {
+	if (loadedScript) {
+
+		if (localeCode === 'EN') {
+
+			noty({
+				text: '請稍後...',
+				layout: 'topCenter',
+				type: 'success',
+				timeout: 3000
+			});
+
+			localeCode = 'TC';
+
+			//window.location.reload();
+
+			$.get(LOCALE_TC_URL, function (response) {
+				translate(response);
+
+				translateMarkers();
+
+				requestDistricts();
+				requestStationType();
+				requestProvider();
+			});
+		} else {
+
+			noty({
+				text: 'Please wait...',
+				layout: 'topCenter',
+				type: 'success',
+				timeout: 3000
+			});
+
+			localeCode = 'EN';
+
+			$.get(LOCALE_EN_URL, function (response) {
+				translate(response);
+
+				translateMarkers();
+
+				requestDistricts();
+				requestStationType();
+				requestProvider();
+			});
+		}
+		loadedScript = false;
+	}
+	else {
+		setTimeout(changeScriptAndLocale, 1000); // check again in a second
 	}
 }
