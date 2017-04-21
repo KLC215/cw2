@@ -37,7 +37,7 @@ class StationProvider
 		$query->execute();
 
 		if ($query->rowCount() <= 0) {
-			JSONResponse::jsonError("Cannot fetch station providers");
+			JSONResponse::jsonMessage("Cannot fetch station providers");
 			die();
 		}
 

@@ -55,7 +55,7 @@ class JSONResponse
 	 *
 	 * @param array $msg
 	 */
-	public static function jsonError($msg = [])
+	public static function jsonMessage($msg = [])
 	{
 		JSONResponse::setJSONHeader();
 

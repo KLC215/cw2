@@ -37,7 +37,7 @@ class StationType
 		$query->execute();
 
 		if ($query->rowCount() <= 0) {
-			JSONResponse::jsonError("Cannot fetch station types");
+			JSONResponse::jsonMessage("Cannot fetch station types");
 			die();
 		}
 

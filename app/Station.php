@@ -95,6 +95,14 @@ class Station extends RESTful
 	{
 		$this->checkErrors();
 
+		if (!is_numeric($id)) {
+			$this->showErrorResponse(
+				$this->getFormat(),
+				$this->responseNumberNotRecognized()
+			);
+			die();
+		}
+
 		$query = $this->pdo->prepare(
 			"SELECT
 			  s.no,
@@ -315,7 +323,7 @@ class Station extends RESTful
 		if ($this->format == '' || $this->lang == '') {
 			$this->showErrorResponse(
 				$this->getFormat(),
-				$this->responseParamNotRecognized('Empty')
+				$this->responseParamNotRecognized()
 			);
 			die();
 		}
@@ -372,7 +380,7 @@ class Station extends RESTful
 				XMLResponse::xmlError('stationList', 'error', $error);
 				break;
 			case JSONResponse::JSON_FORMAT:
-				JSONResponse::jsonError($error);
+				JSONResponse::jsonMessage($error);
 				break;
 		}
 	}

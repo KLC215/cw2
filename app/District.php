@@ -47,7 +47,7 @@ class District
 
 
 		if ($query->rowCount() <= 0) {
-			JSONResponse::jsonError("Cannot fetch districts");
+			JSONResponse::jsonMessage("Cannot fetch districts");
 			die();
 		}
 

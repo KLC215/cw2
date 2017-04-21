@@ -31,7 +31,7 @@ class Language extends RESTful
 		$pdo = $db->connect();
 
 		if(!$pdo) {
-			JSONResponse::jsonError(self::responseErrorInService());
+			JSONResponse::jsonMessage(self::responseErrorInService());
 			die();
 		}
 
